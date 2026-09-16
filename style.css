@@ -1,0 +1,639 @@
+/* ============================================================
+   SALAH TIMES — Premium Islamic Prayer App Stylesheet
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --navy-deep:   #050d1a;
+  --navy-mid:    #0a1628;
+  --navy-light:  #0f2040;
+  --gold:        #c9a84c;
+  --gold-light:  #e8c96a;
+  --gold-glow:   rgba(201,168,76,0.35);
+  --teal:        #1aaab4;
+  --teal-glow:   rgba(26,170,180,0.2);
+  --purple:      #6b3fa0;
+  --purple-light:#8b5fc0;
+  --white:       #ffffff;
+  --text-muted:  rgba(255,255,255,0.55);
+  --glass-bg:    rgba(10,22,40,0.65);
+  --glass-border:rgba(201,168,76,0.18);
+  --card-bg:     rgba(10,22,40,0.80);
+  --radius-lg:   20px;
+  --radius-md:   14px;
+  --radius-sm:   10px;
+  --shadow-gold: 0 0 40px rgba(201,168,76,0.15);
+  --shadow-card: 0 8px 40px rgba(0,0,0,0.5);
+  --transition:  0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Stars Background ── */
+.stars-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+  opacity: 0;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0; transform: scale(0.8); }
+  50%      { opacity: var(--max-opacity); transform: scale(1.2); }
+}
+
+/* ── Hero Background ── */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: url('mosque_hero.jpg') center bottom / cover no-repeat;
+  opacity: 0.25;
+  pointer-events: none;
+  filter: saturate(0.6);
+}
+.hero-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    180deg,
+    var(--navy-deep) 0%,
+    rgba(5,13,26,0.3) 40%,
+    rgba(5,13,26,0.7) 70%,
+    var(--navy-deep) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── App Container ── */
+.app-container {
+  position: relative;
+  z-index: 10;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 0 16px 60px;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0 16px;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.crescent-icon {
+  font-size: 1.8rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--white);
+}
+.brand-accent {
+  color: var(--gold);
+}
+.header-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-align: right;
+}
+
+/* ── LOCATION SCREEN ── */
+.location-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 24px 0;
+}
+.location-card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px 40px;
+  text-align: center;
+  backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-card), var(--shadow-gold);
+  animation: fadeInUp 0.6s ease both;
+}
+.location-icon-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pulse-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  opacity: 0;
+  animation: pulse-ring 2s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.location-icon {
+  font-size: 2.6rem;
+  filter: drop-shadow(0 0 12px var(--gold-glow));
+}
+.location-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--white);
+}
+.location-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  color: var(--navy-deep);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px var(--gold-glow);
+  letter-spacing: 0.3px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--gold-glow);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--glass-bg);
+  color: var(--gold);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-secondary:hover {
+  background: rgba(201,168,76,0.12);
+  border-color: var(--gold);
+}
+
+.btn-icon { font-size: 1.1em; }
+
+/* Manual location */
+.manual-location-toggle {
+  margin-top: 18px;
+  font-size: 0.82rem;
+  color: var(--teal);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+.manual-location-toggle:hover { opacity: 1; }
+
+.manual-input-wrap {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.city-input {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.city-input:focus { border-color: var(--gold); }
+.city-input::placeholder { color: var(--text-muted); }
+
+/* ── LOADING SCREEN ── */
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+.loading-content { text-align: center; }
+.loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.spinner-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--gold);
+  border-right-color: var(--gold);
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-crescent {
+  font-size: 2rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+.loading-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  animation: pulse-opacity 1.5s ease-in-out infinite;
+}
+@keyframes pulse-opacity {
+  0%,100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* ── ERROR SCREEN ── */
+.error-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+.error-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,80,80,0.2);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  text-align: center;
+  backdrop-filter: blur(24px);
+  animation: fadeInUp 0.4s ease both;
+}
+.error-icon { font-size: 3rem; margin-bottom: 16px; }
+.error-card h2 { font-size: 1.3rem; margin-bottom: 10px; }
+.error-card p  { color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
+
+/* ── PRAYER SCREEN ── */
+.prayer-screen { padding-top: 8px; }
+
+/* Location Bar */
+.location-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  padding: 8px 16px;
+  margin-bottom: 28px;
+  backdrop-filter: blur(12px);
+  animation: fadeInDown 0.5s ease both;
+}
+.loc-icon { font-size: 1rem; }
+.loc-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.loc-refresh {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform var(--transition);
+  padding: 0 4px;
+  line-height: 1;
+}
+.loc-refresh:hover { transform: rotate(180deg); }
+
+/* Live Clock */
+.live-clock-section {
+  text-align: center;
+  margin-bottom: 28px;
+  animation: fadeInDown 0.5s 0.1s ease both;
+}
+.live-clock {
+  font-size: 3.8rem;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-shadow: 0 0 30px rgba(255,255,255,0.15);
+  font-variant-numeric: tabular-nums;
+}
+.hijri-date {
+  font-family: 'Amiri', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  margin-top: 6px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+/* Next Prayer Hero */
+.next-prayer-hero {
+  background: linear-gradient(135deg, rgba(107,63,160,0.4), rgba(26,170,180,0.25));
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-card), 0 0 60px rgba(107,63,160,0.2);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s 0.2s ease both;
+}
+.next-prayer-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 60%);
+  animation: shimmer 6s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(10%,5%); }
+}
+
+.next-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.next-prayer-name {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 0 8px rgba(201,168,76,0.4));
+}
+.next-prayer-time-display {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  font-weight: 400;
+}
+
+.countdown-wrap { margin-bottom: 24px; }
+.countdown-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.countdown-timer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.count-num {
+  font-size: 2.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--white);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255,255,255,0.3);
+  transition: transform 0.15s ease;
+}
+.count-num.flip {
+  animation: flip 0.25s ease;
+}
+@keyframes flip {
+  0%   { transform: scaleY(0.7) translateY(-2px); opacity: 0.5; }
+  100% { transform: scaleY(1)   translateY(0);    opacity: 1; }
+}
+.count-lbl {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+.count-sep {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--gold);
+  margin-bottom: 14px;
+  opacity: 0.7;
+  animation: blink-sep 1s step-end infinite;
+}
+@keyframes blink-sep {
+  0%,100% { opacity: 0.7; }
+  50%      { opacity: 0.2; }
+}
+
+/* Progress Bar */
+.prayer-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+  border-radius: 4px;
+  transition: width 1s linear;
+  box-shadow: 0 0 8px var(--teal-glow);
+}
+
+/* ── PRAYERS GRID ── */
+.prayers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeInUp 0.5s 0.3s ease both;
+}
+
+.prayer-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  backdrop-filter: blur(16px);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.prayer-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--gold);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.prayer-card:hover { background: rgba(10,22,40,0.9); transform: translateX(4px); }
+.prayer-card:hover::before { opacity: 0.6; }
+
+.prayer-card.is-current {
+  background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(10,22,40,0.85));
+  border-color: rgba(201,168,76,0.4);
+  box-shadow: 0 4px 24px rgba(201,168,76,0.12);
+}
+.prayer-card.is-current::before { opacity: 1; }
+
+.prayer-card.is-passed {
+  opacity: 0.55;
+}
+
+.prayer-emoji {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+  flex-shrink: 0;
+  width: 40px;
+  text-align: center;
+}
+.prayer-info {
+  flex: 1;
+}
+.prayer-name-en {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+}
+.prayer-name-ar {
+  font-family: 'Amiri', serif;
+  font-size: 0.85rem;
+  color: var(--gold);
+  opacity: 0.8;
+  margin-top: 1px;
+}
+.prayer-time {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--white);
+}
+.prayer-badge {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-weight: 600;
+}
+.badge-current {
+  background: rgba(201,168,76,0.18);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+}
+.badge-next {
+  background: rgba(26,170,180,0.15);
+  color: var(--teal);
+  border: 1px solid rgba(26,170,180,0.3);
+}
+.badge-passed {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Method Badge */
+.method-badge {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 20px;
+  padding: 8px 0;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 380px) {
+  .live-clock { font-size: 3rem; }
+  .count-num  { font-size: 2.2rem; }
+  .next-prayer-name { font-size: 2rem; }
+  .location-card { padding: 36px 20px 32px; }
+}

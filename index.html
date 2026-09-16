@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salah Times — Live Prayer App</title>
+  <meta name="description" content="Live, location-based Islamic prayer times with real-time countdown. Accurate Salah times for Fajr, Dhuhr, Asr, Maghrib, and Isha wherever you are." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="stars-bg" id="starsBg"></div>
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="crescent-icon">&#9789;</span>
+        <h1 class="brand-name">Salah<span class="brand-accent">Times</span></h1>
+      </div>
+      <div class="header-date" id="headerDate"></div>
+    </header>
+    <section class="location-screen" id="locationScreen">
+      <div class="location-card">
+        <div class="location-icon-wrap">
+          <div class="pulse-ring"></div>
+          <div class="location-icon">&#128205;</div>
+        </div>
+        <h2>Find Your Prayer Times</h2>
+        <p>Allow location access to get accurate prayer times for your exact position.</p>
+        <button class="btn-primary" id="enableLocationBtn">
+          <span class="btn-icon">&#127760;</span>
+          Enable Location
+        </button>
+        <div class="manual-location-toggle" id="manualToggle">
+          <span>Or enter city manually</span>
+        </div>
+        <div class="manual-input-wrap" id="manualInputWrap" style="display:none;">
+          <input type="text" id="cityInput" placeholder="e.g. Cairo, Istanbul, London..." class="city-input" />
+          <button class="btn-secondary" id="searchCityBtn">Search</button>
+        </div>
+      </div>
+    </section>
+    <section class="loading-screen" id="loadingScreen" style="display:none;">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <span class="spinner-crescent">&#9789;</span>
+        </div>
+        <p class="loading-text" id="loadingText">Detecting your location...</p>
+      </div>
+    </section>
+    <section class="error-screen" id="errorScreen" style="display:none;">
+      <div class="error-card">
+        <div class="error-icon">&#9888;&#65039;</div>
+        <h2>Something went wrong</h2>
+        <p id="errorMessage">Unable to fetch prayer times.</p>
+        <button class="btn-primary" id="retryBtn">Try Again</button>
+      </div>
+    </section>
+    <section class="prayer-screen" id="prayerScreen" style="display:none;">
+      <div class="location-bar" id="locationBar">
+        <span class="loc-icon">&#128205;</span>
+        <span class="loc-text" id="locationText">Loading...</span>
+        <button class="loc-refresh" id="refreshBtn" title="Refresh location">&#8634;</button>
+      </div>
+      <div class="live-clock-section">
+        <div class="live-clock" id="liveClock">--:--:--</div>
+        <div class="hijri-date" id="hijriDate"></div>
+      </div>
+      <div class="next-prayer-hero" id="nextPrayerHero">
+        <div class="next-label">Next Prayer</div>
+        <div class="next-prayer-name" id="nextPrayerName">---</div>
+        <div class="next-prayer-time-display" id="nextPrayerTimeDisplay">--:--</div>
+        <div class="countdown-wrap">
+          <div class="countdown-label">Time Remaining</div>
+          <div class="countdown-timer" id="countdownTimer">
+            <div class="countdown-unit">
+              <span class="count-num" id="countHr">00</span>
+              <span class="count-lbl">hrs</span>
+            </div>
+            <span class="count-sep">:</span>
+            <div class="countdown-unit">
+              <span class="count-num" id="countMin">00</span>
+              <span class="count-lbl">min</span>
+            </div>
+            <span class="count-sep">:</span>
+            <div class="countdown-unit">
+              <span class="count-num" id="countSec">00</span>
+              <span class="count-lbl">sec</span>
+            </div>
+          </div>
+        </div>
+        <div class="prayer-progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="prayers-grid" id="prayersGrid"></div>
+      <div class="method-badge" id="methodBadge"></div>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
