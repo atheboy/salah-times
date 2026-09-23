@@ -1,39 +1,35 @@
 /* ============================================================
-   SALAH TIMES — Premium Islamic Prayer App Stylesheet
+   SALAH TIMES — Premium Islamic Prayer App Stylesheet v2
    ============================================================ */
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --navy-deep:   #050d1a;
-  --navy-mid:    #0a1628;
-  --navy-light:  #0f2040;
-  --gold:        #c9a84c;
-  --gold-light:  #e8c96a;
-  --gold-glow:   rgba(201,168,76,0.35);
-  --teal:        #1aaab4;
-  --teal-glow:   rgba(26,170,180,0.2);
-  --purple:      #6b3fa0;
-  --purple-light:#8b5fc0;
-  --white:       #ffffff;
-  --text-muted:  rgba(255,255,255,0.55);
-  --glass-bg:    rgba(10,22,40,0.65);
-  --glass-border:rgba(201,168,76,0.18);
-  --card-bg:     rgba(10,22,40,0.80);
-  --radius-lg:   20px;
-  --radius-md:   14px;
-  --radius-sm:   10px;
-  --shadow-gold: 0 0 40px rgba(201,168,76,0.15);
-  --shadow-card: 0 8px 40px rgba(0,0,0,0.5);
-  --transition:  0.3s cubic-bezier(0.4,0,0.2,1);
+  --navy-deep:    #050d1a;
+  --navy-mid:     #0a1628;
+  --navy-light:   #0f2040;
+  --gold:         #c9a84c;
+  --gold-light:   #e8c96a;
+  --gold-glow:    rgba(201,168,76,0.35);
+  --teal:         #1aaab4;
+  --teal-glow:    rgba(26,170,180,0.2);
+  --purple:       #6b3fa0;
+  --green:        #2ecc71;
+  --white:        #ffffff;
+  --text-muted:   rgba(255,255,255,0.55);
+  --glass-bg:     rgba(10,22,40,0.65);
+  --glass-border: rgba(201,168,76,0.18);
+  --card-bg:      rgba(10,22,40,0.85);
+  --drawer-bg:    rgba(6,15,30,0.97);
+  --radius-lg:    20px;
+  --radius-md:    14px;
+  --radius-sm:    10px;
+  --shadow-gold:  0 0 40px rgba(201,168,76,0.15);
+  --shadow-card:  0 8px 40px rgba(0,0,0,0.5);
+  --transition:   0.3s cubic-bezier(0.4,0,0.2,1);
 }
 
 html { scroll-behavior: smooth; }
-
 body {
   font-family: 'Outfit', sans-serif;
   background: var(--navy-deep);
@@ -43,597 +39,546 @@ body {
   position: relative;
 }
 
-/* ── Stars Background ── */
-.stars-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
+/* ── Stars ── */
+.stars-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .star {
-  position: absolute;
-  background: white;
-  border-radius: 50%;
+  position: absolute; background: white; border-radius: 50%;
   animation: twinkle var(--dur) ease-in-out infinite;
-  animation-delay: var(--delay);
-  opacity: 0;
+  animation-delay: var(--delay); opacity: 0;
 }
 @keyframes twinkle {
   0%,100% { opacity: 0; transform: scale(0.8); }
   50%      { opacity: var(--max-opacity); transform: scale(1.2); }
 }
 
-/* ── Hero Background ── */
+/* ── Hero ── */
 .hero-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
+  position: fixed; inset: 0; z-index: 1;
   background: url('mosque_hero.jpg') center bottom / cover no-repeat;
-  opacity: 0.25;
-  pointer-events: none;
-  filter: saturate(0.6);
+  opacity: 0.22; pointer-events: none; filter: saturate(0.55);
 }
 .hero-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  background: linear-gradient(
-    180deg,
-    var(--navy-deep) 0%,
-    rgba(5,13,26,0.3) 40%,
-    rgba(5,13,26,0.7) 70%,
-    var(--navy-deep) 100%
-  );
+  position: fixed; inset: 0; z-index: 2;
+  background: linear-gradient(180deg, var(--navy-deep) 0%, rgba(5,13,26,0.25) 40%, rgba(5,13,26,0.65) 70%, var(--navy-deep) 100%);
   pointer-events: none;
 }
 
+/* ── Drawer Overlay ── */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--transition);
+}
+.drawer-overlay.active { opacity: 1; pointer-events: all; }
+
+/* ── Settings Drawer (right) ── */
+.settings-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(380px, 92vw);
+  background: var(--drawer-bg);
+  border-left: 1px solid var(--glass-border);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.settings-drawer.open { transform: translateX(0); }
+
+/* ── Locations Panel (bottom sheet) ── */
+.locations-panel {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  max-height: 80vh;
+  background: var(--drawer-bg);
+  border-top: 1px solid var(--glass-border);
+  border-radius: 24px 24px 0 0;
+  z-index: 100;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: 32px;
+}
+.locations-panel.open { transform: translateY(0); }
+
+.locations-handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+/* ── Shared Drawer Styles ── */
+.drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+.drawer-header h3 {
+  font-size: 1.1rem; font-weight: 700; color: var(--gold);
+}
+.drawer-close {
+  background: rgba(255,255,255,0.08); border: none;
+  color: var(--text-muted); font-size: 1rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.drawer-close:hover { background: rgba(255,255,255,0.15); color: var(--white); }
+
+.drawer-body { padding: 20px 24px; flex: 1; }
+
+/* ── Setting Groups ── */
+.setting-group { margin-bottom: 28px; }
+.setting-label {
+  display: block; font-size: 0.85rem; font-weight: 600;
+  color: var(--white); margin-bottom: 4px; letter-spacing: 0.3px;
+}
+.setting-hint {
+  font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;
+}
+.setting-select {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  padding: 10px 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c9a84c' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.setting-select:focus { border-color: var(--gold); }
+.setting-select option { background: #0a1628; }
+
+/* ── Toggle Group ── */
+.toggle-group {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.toggle-btn {
+  flex: 1; min-width: 0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem; font-weight: 500;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.toggle-btn:hover { border-color: rgba(201,168,76,0.4); color: var(--white); }
+.toggle-btn.active {
+  background: rgba(201,168,76,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.preset-btn {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem; font-weight: 600;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.preset-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.1); }
+
+.btn-apply {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  color: var(--navy-deep);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  padding: 13px;
+  border: none; border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px var(--gold-glow);
+  margin-top: 8px;
+}
+.btn-apply:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow); }
+
+/* ── Location Cards ── */
+.locations-list {
+  padding: 12px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 45vh; overflow-y: auto;
+}
+.location-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.location-item:hover { background: rgba(10,22,40,0.9); border-color: rgba(201,168,76,0.3); }
+.location-item.active-loc {
+  background: rgba(201,168,76,0.1);
+  border-color: rgba(201,168,76,0.45);
+}
+.loc-item-icon { font-size: 1.3rem; flex-shrink: 0; }
+.loc-item-name { flex: 1; font-size: 0.92rem; font-weight: 500; color: var(--white); }
+.loc-item-coords { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.active-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(46,204,113,0.6);
+}
+.loc-delete-btn {
+  background: none; border: none;
+  color: rgba(255,80,80,0.5); font-size: 1rem;
+  cursor: pointer; padding: 4px; line-height: 1;
+  transition: color var(--transition);
+}
+.loc-delete-btn:hover { color: rgba(255,80,80,0.9); }
+.no-locations {
+  text-align: center; color: var(--text-muted);
+  font-size: 0.85rem; padding: 24px 0;
+}
+
+.add-location-form {
+  display: flex; gap: 8px;
+  padding: 12px 20px 8px;
+  flex-shrink: 0;
+}
+.btn-add-loc {
+  background: rgba(201,168,76,0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-add-loc:hover { background: rgba(201,168,76,0.25); }
+
+.btn-gps {
+  margin: 4px 20px 0;
+  width: calc(100% - 40px);
+  background: rgba(26,170,180,0.1);
+  border: 1px solid rgba(26,170,180,0.35);
+  color: var(--teal);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  padding: 11px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-gps:hover { background: rgba(26,170,180,0.2); }
+
 /* ── App Container ── */
 .app-container {
-  position: relative;
-  z-index: 10;
-  max-width: 540px;
-  margin: 0 auto;
-  padding: 0 16px 60px;
-  min-height: 100vh;
+  position: relative; z-index: 10;
+  max-width: 540px; margin: 0 auto;
+  padding: 0 16px 60px; min-height: 100vh;
 }
 
 /* ── Header ── */
 .app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 0 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 0 14px;
 }
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.header-brand { display: flex; align-items: center; gap: 10px; }
 .crescent-icon {
-  font-size: 1.8rem;
-  color: var(--gold);
+  font-size: 1.8rem; color: var(--gold);
   filter: drop-shadow(0 0 8px var(--gold-glow));
   animation: float 4s ease-in-out infinite;
 }
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.brand-name { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+.brand-accent { color: var(--gold); }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-date { font-size: 0.72rem; color: var(--text-muted); text-align: right; }
+.icon-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--gold); font-size: 1rem;
+  width: 36px; height: 36px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); backdrop-filter: blur(8px);
 }
-.brand-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: var(--white);
-}
-.brand-accent {
-  color: var(--gold);
-}
-.header-date {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 400;
-  text-align: right;
-}
+.icon-btn:hover { background: rgba(201,168,76,0.15); transform: scale(1.08); }
 
-/* ── LOCATION SCREEN ── */
+/* ── Location Screen ── */
 .location-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  padding: 24px 0;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 80vh; padding: 24px 0;
 }
 .location-card {
-  background: var(--card-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: 48px 32px 40px;
-  text-align: center;
-  backdrop-filter: blur(24px);
+  background: var(--card-bg); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding: 48px 32px 40px;
+  text-align: center; backdrop-filter: blur(24px);
   box-shadow: var(--shadow-card), var(--shadow-gold);
   animation: fadeInUp 0.6s ease both;
 }
 .location-icon-wrap {
-  position: relative;
-  width: 80px;
-  height: 80px;
+  position: relative; width: 80px; height: 80px;
   margin: 0 auto 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 .pulse-ring {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 2px solid var(--gold);
-  opacity: 0;
+  position: absolute; inset: -8px; border-radius: 50%;
+  border: 2px solid var(--gold); opacity: 0;
   animation: pulse-ring 2s ease-out infinite;
 }
-@keyframes pulse-ring {
-  0%   { transform: scale(0.8); opacity: 0.7; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.location-icon {
-  font-size: 2.6rem;
-  filter: drop-shadow(0 0 12px var(--gold-glow));
-}
-.location-card h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--white);
-}
-.location-card p {
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-  line-height: 1.6;
-}
+@keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
+.location-icon { font-size: 2.6rem; filter: drop-shadow(0 0 12px var(--gold-glow)); }
+.location-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+.location-card p { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
 
 /* ── Buttons ── */
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   background: linear-gradient(135deg, var(--gold), #b8860b);
-  color: var(--navy-deep);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.96rem;
-  font-weight: 700;
-  padding: 14px 32px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: var(--transition);
+  color: var(--navy-deep); font-family: 'Outfit', sans-serif;
+  font-size: 0.96rem; font-weight: 700;
+  padding: 14px 32px; border: none; border-radius: 50px;
+  cursor: pointer; transition: var(--transition);
   box-shadow: 0 4px 20px var(--gold-glow);
-  letter-spacing: 0.3px;
 }
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px var(--gold-glow);
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
-}
-.btn-primary:active { transform: translateY(0); }
-
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow); }
 .btn-secondary {
-  background: var(--glass-bg);
-  color: var(--gold);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 10px 20px;
-  border: 1px solid var(--glass-border);
-  border-radius: 50px;
-  cursor: pointer;
-  transition: var(--transition);
+  background: var(--glass-bg); color: var(--gold);
+  font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600;
+  padding: 10px 20px; border: 1px solid var(--glass-border); border-radius: 50px;
+  cursor: pointer; transition: var(--transition);
 }
-.btn-secondary:hover {
-  background: rgba(201,168,76,0.12);
-  border-color: var(--gold);
-}
-
+.btn-secondary:hover { background: rgba(201,168,76,0.12); border-color: var(--gold); }
 .btn-icon { font-size: 1.1em; }
-
-/* Manual location */
 .manual-location-toggle {
-  margin-top: 18px;
-  font-size: 0.82rem;
-  color: var(--teal);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  opacity: 0.85;
-  transition: opacity var(--transition);
+  margin-top: 18px; font-size: 0.82rem; color: var(--teal);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px; opacity: 0.85;
 }
 .manual-location-toggle:hover { opacity: 1; }
-
-.manual-input-wrap {
-  display: flex;
-  gap: 10px;
-  margin-top: 14px;
-}
+.manual-input-wrap { display: flex; gap: 10px; margin-top: 14px; }
 .city-input {
-  flex: 1;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  color: var(--white);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.9rem;
-  outline: none;
+  flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  color: var(--white); font-family: 'Outfit', sans-serif; font-size: 0.9rem; outline: none;
   transition: border-color var(--transition);
 }
 .city-input:focus { border-color: var(--gold); }
 .city-input::placeholder { color: var(--text-muted); }
 
-/* ── LOADING SCREEN ── */
-.loading-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-}
+/* ── Loading ── */
+.loading-screen { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
 .loading-content { text-align: center; }
 .loading-spinner {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative; width: 80px; height: 80px; margin: 0 auto 24px;
+  display: flex; align-items: center; justify-content: center;
 }
 .spinner-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
+  position: absolute; inset: 0; border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: var(--gold);
-  border-right-color: var(--gold);
+  border-top-color: var(--gold); border-right-color: var(--gold);
   animation: spin 1.2s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.spinner-crescent {
-  font-size: 2rem;
-  color: var(--gold);
-  filter: drop-shadow(0 0 8px var(--gold-glow));
-}
-.loading-text {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  animation: pulse-opacity 1.5s ease-in-out infinite;
-}
-@keyframes pulse-opacity {
-  0%,100% { opacity: 0.6; }
-  50%      { opacity: 1; }
-}
+.spinner-crescent { font-size: 2rem; color: var(--gold); }
+.loading-text { font-size: 0.95rem; color: var(--text-muted); animation: pulse-opacity 1.5s ease-in-out infinite; }
+@keyframes pulse-opacity { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-/* ── ERROR SCREEN ── */
-.error-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-}
+/* ── Error ── */
+.error-screen { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
 .error-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,80,80,0.2);
-  border-radius: var(--radius-lg);
-  padding: 48px 32px;
-  text-align: center;
-  backdrop-filter: blur(24px);
-  animation: fadeInUp 0.4s ease both;
+  background: var(--card-bg); border: 1px solid rgba(255,80,80,0.2);
+  border-radius: var(--radius-lg); padding: 48px 32px;
+  text-align: center; backdrop-filter: blur(24px); animation: fadeInUp 0.4s ease both;
 }
 .error-icon { font-size: 3rem; margin-bottom: 16px; }
 .error-card h2 { font-size: 1.3rem; margin-bottom: 10px; }
-.error-card p  { color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
+.error-card p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
 
-/* ── PRAYER SCREEN ── */
-.prayer-screen { padding-top: 8px; }
+/* ── Prayer Screen ── */
+.prayer-screen { padding-top: 4px; }
 
-/* Location Bar */
 .location-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 50px;
-  padding: 8px 16px;
-  margin-bottom: 28px;
-  backdrop-filter: blur(12px);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 50px; padding: 8px 14px;
+  margin-bottom: 10px; backdrop-filter: blur(12px);
   animation: fadeInDown 0.5s ease both;
 }
-.loc-icon { font-size: 1rem; }
-.loc-text {
-  flex: 1;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.loc-refresh {
-  background: none;
-  border: none;
-  color: var(--gold);
-  font-size: 1.1rem;
-  cursor: pointer;
+.loc-icon { font-size: 0.9rem; }
+.loc-text { flex: 1; font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loc-save, .loc-refresh {
+  background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0 3px;
   transition: transform var(--transition);
-  padding: 0 4px;
-  line-height: 1;
 }
+.loc-save { color: var(--gold); }
+.loc-save.saved { color: var(--gold); }
+.loc-refresh { color: var(--teal); }
 .loc-refresh:hover { transform: rotate(180deg); }
 
-/* Live Clock */
+/* ── Active Badges ── */
+.active-badges {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 16px; animation: fadeInDown 0.5s 0.05s ease both;
+}
+.active-badge {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.5px;
+  padding: 4px 10px; border-radius: 50px;
+  background: rgba(201,168,76,0.1); color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.25);
+  white-space: nowrap;
+}
+.madhab-badge {
+  background: rgba(26,170,180,0.1); color: var(--teal);
+  border-color: rgba(26,170,180,0.25);
+}
+
+/* ── Live Clock ── */
 .live-clock-section {
-  text-align: center;
-  margin-bottom: 28px;
+  text-align: center; margin-bottom: 24px;
   animation: fadeInDown 0.5s 0.1s ease both;
 }
 .live-clock {
-  font-size: 3.8rem;
-  font-weight: 300;
-  letter-spacing: 4px;
-  color: var(--white);
-  text-shadow: 0 0 30px rgba(255,255,255,0.15);
+  font-size: 3.6rem; font-weight: 300; letter-spacing: 4px;
+  color: var(--white); text-shadow: 0 0 30px rgba(255,255,255,0.15);
   font-variant-numeric: tabular-nums;
 }
 .hijri-date {
-  font-family: 'Amiri', serif;
-  font-size: 1rem;
-  color: var(--gold);
-  margin-top: 6px;
-  opacity: 0.9;
-  letter-spacing: 0.5px;
+  font-family: 'Amiri', serif; font-size: 1rem;
+  color: var(--gold); margin-top: 6px; opacity: 0.9;
 }
 
-/* Next Prayer Hero */
+/* ── Next Prayer Hero ── */
 .next-prayer-hero {
   background: linear-gradient(135deg, rgba(107,63,160,0.4), rgba(26,170,180,0.25));
-  border: 1px solid rgba(201,168,76,0.25);
-  border-radius: var(--radius-lg);
-  padding: 36px 28px 28px;
-  text-align: center;
-  margin-bottom: 24px;
+  border: 1px solid rgba(201,168,76,0.25); border-radius: var(--radius-lg);
+  padding: 32px 24px 24px; text-align: center; margin-bottom: 20px;
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow-card), 0 0 60px rgba(107,63,160,0.2);
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
   animation: fadeInUp 0.5s 0.2s ease both;
 }
 .next-prayer-hero::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
   background: radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 60%);
   animation: shimmer 6s ease-in-out infinite;
 }
-@keyframes shimmer {
-  0%,100% { transform: translate(0,0); }
-  50%      { transform: translate(10%,5%); }
-}
-
-.next-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
+@keyframes shimmer { 0%,100% { transform: translate(0,0); } 50% { transform: translate(10%,5%); } }
+.next-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 4px; }
 .next-prayer-name {
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: 2.4rem; font-weight: 800;
   background: linear-gradient(135deg, var(--gold-light), var(--gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 2px;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   filter: drop-shadow(0 0 8px rgba(201,168,76,0.4));
 }
-.next-prayer-time-display {
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-  font-weight: 400;
-}
-
-.countdown-wrap { margin-bottom: 24px; }
-.countdown-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-.countdown-timer {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 8px;
-}
-.countdown-unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
+.next-prayer-time-display { font-size: 1rem; color: var(--text-muted); margin-bottom: 24px; }
+.countdown-wrap { margin-bottom: 20px; }
+.countdown-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 8px; }
+.countdown-timer { display: flex; align-items: flex-end; justify-content: center; gap: 8px; }
+.countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .count-num {
-  font-size: 2.8rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--white);
-  line-height: 1;
-  text-shadow: 0 0 20px rgba(255,255,255,0.3);
-  transition: transform 0.15s ease;
+  font-size: 2.8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--white); line-height: 1;
 }
-.count-num.flip {
-  animation: flip 0.25s ease;
-}
-@keyframes flip {
-  0%   { transform: scaleY(0.7) translateY(-2px); opacity: 0.5; }
-  100% { transform: scaleY(1)   translateY(0);    opacity: 1; }
-}
-.count-lbl {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-}
+.count-num.flip { animation: flip 0.25s ease; }
+@keyframes flip { 0% { transform: scaleY(0.7); opacity: 0.5; } 100% { transform: scaleY(1); opacity: 1; } }
+.count-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
 .count-sep {
-  font-size: 2rem;
-  font-weight: 300;
-  color: var(--gold);
-  margin-bottom: 14px;
-  opacity: 0.7;
+  font-size: 2rem; font-weight: 300; color: var(--gold); margin-bottom: 14px; opacity: 0.7;
   animation: blink-sep 1s step-end infinite;
 }
-@keyframes blink-sep {
-  0%,100% { opacity: 0.7; }
-  50%      { opacity: 0.2; }
-}
-
-/* Progress Bar */
-.prayer-progress-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  overflow: hidden;
-}
+@keyframes blink-sep { 0%,100% { opacity: 0.7; } 50% { opacity: 0.2; } }
+.prayer-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
 .progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--teal), var(--gold));
-  border-radius: 4px;
-  transition: width 1s linear;
+  height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold));
+  border-radius: 4px; transition: width 1s linear;
   box-shadow: 0 0 8px var(--teal-glow);
 }
 
-/* ── PRAYERS GRID ── */
-.prayers-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  animation: fadeInUp 0.5s 0.3s ease both;
-}
-
+/* ── Prayers Grid ── */
+.prayers-grid { display: flex; flex-direction: column; gap: 8px; animation: fadeInUp 0.5s 0.3s ease both; }
 .prayer-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  backdrop-filter: blur(16px);
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
+  display: flex; align-items: center; gap: 14px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 14px 18px;
+  backdrop-filter: blur(16px); transition: var(--transition);
+  position: relative; overflow: hidden;
 }
 .prayer-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--gold);
-  opacity: 0;
-  transition: opacity var(--transition);
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--gold); opacity: 0; transition: opacity var(--transition);
 }
-.prayer-card:hover { background: rgba(10,22,40,0.9); transform: translateX(4px); }
-.prayer-card:hover::before { opacity: 0.6; }
-
+.prayer-card:hover { background: rgba(10,22,40,0.9); transform: translateX(3px); }
+.prayer-card:hover::before { opacity: 0.5; }
 .prayer-card.is-current {
-  background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(10,22,40,0.85));
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(10,22,40,0.85));
   border-color: rgba(201,168,76,0.4);
-  box-shadow: 0 4px 24px rgba(201,168,76,0.12);
+  box-shadow: 0 4px 24px rgba(201,168,76,0.1);
 }
 .prayer-card.is-current::before { opacity: 1; }
-
-.prayer-card.is-passed {
-  opacity: 0.55;
-}
-
-.prayer-emoji {
-  font-size: 1.8rem;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
-  flex-shrink: 0;
-  width: 40px;
-  text-align: center;
-}
-.prayer-info {
-  flex: 1;
-}
-.prayer-name-en {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--white);
-}
-.prayer-name-ar {
-  font-family: 'Amiri', serif;
-  font-size: 0.85rem;
-  color: var(--gold);
-  opacity: 0.8;
-  margin-top: 1px;
-}
-.prayer-time {
-  font-size: 1.15rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--white);
-}
+.prayer-card.is-passed { opacity: 0.5; }
+.prayer-emoji { font-size: 1.6rem; flex-shrink: 0; width: 36px; text-align: center; }
+.prayer-info { flex: 1; }
+.prayer-name-en { font-size: 0.96rem; font-weight: 600; color: var(--white); }
+.prayer-name-ar { font-family: 'Amiri', serif; font-size: 0.82rem; color: var(--gold); opacity: 0.8; margin-top: 1px; }
+.prayer-time { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--white); margin-right: 6px; }
 .prayer-badge {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  padding: 3px 10px;
-  border-radius: 50px;
-  font-weight: 600;
-}
-.badge-current {
-  background: rgba(201,168,76,0.18);
-  color: var(--gold);
-  border: 1px solid rgba(201,168,76,0.3);
-}
-.badge-next {
-  background: rgba(26,170,180,0.15);
-  color: var(--teal);
-  border: 1px solid rgba(26,170,180,0.3);
-}
-.badge-passed {
-  background: rgba(255,255,255,0.05);
-  color: var(--text-muted);
-  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 3px 9px; border-radius: 50px; font-weight: 600;
 }
 
-/* Method Badge */
-.method-badge {
-  text-align: center;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 20px;
-  padding: 8px 0;
-  opacity: 0.7;
-  letter-spacing: 0.5px;
+/* Extra reference times — Sunrise, Sunset, Imsak, Midnight */
+.extra-times-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 14px; animation: fadeInUp 0.5s 0.4s ease both;
 }
+.extra-time-item {
+  flex: 1; min-width: 100px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgba(26,170,180,0.06); border: 1px solid rgba(26,170,180,0.18);
+  border-radius: var(--radius-sm); padding: 10px 8px;
+}
+.extra-time-emoji { font-size: 1.1rem; }
+.extra-time-label {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--teal); font-weight: 600;
+}
+.extra-time-value {
+  font-size: 0.88rem; font-weight: 600; color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+.badge-current { background: rgba(201,168,76,0.18); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+.badge-next { background: rgba(26,170,180,0.15); color: var(--teal); border: 1px solid rgba(26,170,180,0.3); }
+.badge-passed { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
 
-/* ── ANIMATIONS ── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ── Animations ── */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── RESPONSIVE ── */
+/* ── Responsive ── */
 @media (max-width: 380px) {
   .live-clock { font-size: 3rem; }
-  .count-num  { font-size: 2.2rem; }
+  .count-num { font-size: 2.2rem; }
   .next-prayer-name { font-size: 2rem; }
   .location-card { padding: 36px 20px 32px; }
 }

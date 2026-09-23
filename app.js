@@ -13,6 +13,30 @@ const PRAYERS = [
   { key: 'Isha',    nameAr: 'العشاء',  emoji: '🌙',  desc: 'Night' },
 ];
 
+// Reference times shown alongside the five daily prayers — mirrors what
+// IRN's own bønnetid.no displays (Morgengry/Fajr slutt/Kveldsgry/Midnatt).
+const EXTRA_TIMES = [
+  { key: 'Imsak',    label: 'Imsak',    emoji: '🌑' },
+  { key: 'Sunrise',  label: 'Sunrise',  emoji: '🌅' },
+  { key: 'Sunset',   label: 'Sunset',   emoji: '🌇' },
+  { key: 'Midnight', label: 'Midnight', emoji: '🌌' },
+];
+
+const METHODS = [
+  { id: 3,  name: 'Muslim World League' },
+  { id: 2,  name: 'Islamic Society of North America (ISNA)' },
+  { id: 4,  name: 'Umm Al-Qura University, Makkah' },
+  { id: 5,  name: 'Egyptian General Authority of Survey' },
+  { id: 1,  name: 'University of Islamic Sciences, Karachi' },
+  { id: 7,  name: 'Institute of Geophysics, University of Tehran' },
+  { id: 8,  name: 'Gulf Region' },
+  { id: 9,  name: 'Kuwait' },
+  { id: 10, name: 'Qatar' },
+  { id: 12, name: 'Union Organization Islamic de France' },
+  { id: 13, name: 'Diyanet İşleri Başkanlığı, Turkey' },
+  { id: 15, name: 'Moonsighting Committee Worldwide' },
+];
+
 // ── State ──────────────────────────────────────────────────────
 let prayerTimings  = null;
 let currentLat     = null;
@@ -20,6 +44,12 @@ let currentLon     = null;
 let currentCity    = '';
 let clockInterval  = null;
 let prevHr  = -1, prevMin = -1, prevSec = -1;
+
+let settings = { method: 2, school: 0, timeFormat: 12, midnightMode: 0, latitudeAdjustment: '' };
+try {
+  const saved = JSON.parse(localStorage.getItem('salahSettings'));
+  if (saved) settings = { ...settings, ...saved };
+} catch {}
 
 // ── DOM Helpers ────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -101,7 +131,9 @@ async function fetchPrayerTimes(lat, lon) {
   const yyyy = today.getFullYear();
   const date = `${dd}-${mm}-${yyyy}`;
 
-  const url = `https://api.aladhan.com/v1/timings/${date}?latitude=${lat}&longitude=${lon}&method=2`;
+  const latAdjParam = settings.latitudeAdjustment !== '' ? `&latitudeAdjustmentMethod=${settings.latitudeAdjustment}` : '';
+  const url = `https://api.aladhan.com/v1/timings/${date}?latitude=${lat}&longitude=${lon}` +
+    `&method=${settings.method}&school=${settings.school}&midnightMode=${settings.midnightMode}${latAdjParam}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('API error: ' + res.status);
   const json = await res.json();
@@ -116,9 +148,11 @@ function parseTime(timeStr) {
   return d;
 }
 
-// ── Format Date to 12h ────────────────────────────────────────
+// ── Format Date per time-format setting ────────────────────────
 function fmt12(dateObj) {
-  return dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return settings.timeFormat === 24
+    ? dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+    : dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 // ── Hijri Date ────────────────────────────────────────────────
@@ -188,6 +222,20 @@ function renderPrayersGrid(timings) {
     `;
     grid.appendChild(card);
   }
+}
+
+function renderExtraTimes(timings) {
+  const row = $('extraTimesRow');
+  if (!row) return;
+  row.innerHTML = EXTRA_TIMES
+    .filter(e => timings[e.key])
+    .map(e => `
+      <div class="extra-time-item">
+        <span class="extra-time-emoji">${e.emoji}</span>
+        <span class="extra-time-label">${e.label}</span>
+        <span class="extra-time-value">${fmt12(parseTime(timings[e.key]))}</span>
+      </div>
+    `).join('');
 }
 
 // ── Live Clock & Countdown ────────────────────────────────────
@@ -266,11 +314,13 @@ async function loadPrayerTimes(lat, lon, cityLabel) {
     // Hijri
     renderHijri(data.date?.hijri);
 
-    // Method
+    // Method + Madhab badges
     $('methodBadge').textContent = 'Calculation: ' + (data.meta?.method?.name || 'ISNA');
+    $('madhabBadge').textContent = settings.school === 1 ? 'Madhab: Hanafi' : 'Madhab: Standard (Shafiʿi)';
 
     // Initial render
     renderPrayersGrid(prayerTimings);
+    renderExtraTimes(prayerTimings);
 
     // Start live ticker
     if (clockInterval) clearInterval(clockInterval);
@@ -331,6 +381,73 @@ $('retryBtn').addEventListener('click', () => showScreen('location'));
 $('refreshBtn').addEventListener('click', () => {
   if (currentLat) loadPrayerTimes(currentLat, currentLon, currentCity);
   else showScreen('location');
+});
+
+// ── Settings Drawer ────────────────────────────────────────────
+function populateMethodSelect() {
+  const sel = $('methodSelect');
+  sel.innerHTML = METHODS.map(m =>
+    `<option value="${m.id}"${m.id === settings.method ? ' selected' : ''}>${m.name}</option>`
+  ).join('');
+}
+
+function setToggleGroup(groupId, val) {
+  const group = $(groupId);
+  group.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.val) === Number(val));
+  });
+}
+
+function wireToggleGroup(groupId) {
+  $(groupId).querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $(groupId).querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+}
+
+function openDrawer() {
+  $('settingsDrawer').classList.add('open');
+  $('settingsDrawer').setAttribute('aria-hidden', 'false');
+  $('drawerOverlay').classList.add('active');
+}
+
+function closeDrawer() {
+  $('settingsDrawer').classList.remove('open');
+  $('settingsDrawer').setAttribute('aria-hidden', 'true');
+  $('drawerOverlay').classList.remove('active');
+}
+
+populateMethodSelect();
+$('latAdjSelect').value = settings.latitudeAdjustment;
+setToggleGroup('schoolToggle', settings.school);
+setToggleGroup('fmtToggle', settings.timeFormat);
+setToggleGroup('midnightToggle', settings.midnightMode);
+wireToggleGroup('schoolToggle');
+wireToggleGroup('fmtToggle');
+wireToggleGroup('midnightToggle');
+
+$('settingsBtn').addEventListener('click', openDrawer);
+$('closeSettings').addEventListener('click', closeDrawer);
+$('drawerOverlay').addEventListener('click', closeDrawer);
+
+$('presetNorway').addEventListener('click', () => {
+  $('methodSelect').value = '3';   // Muslim World League
+  $('latAdjSelect').value = '3';   // Angle Based (high latitude)
+  setToggleGroup('schoolToggle', 1); // Hanafi
+  $('applySettingsBtn').click();
+});
+
+$('applySettingsBtn').addEventListener('click', () => {
+  settings.method       = Number($('methodSelect').value);
+  settings.latitudeAdjustment = $('latAdjSelect').value;
+  settings.school       = Number($('schoolToggle').querySelector('.toggle-btn.active').dataset.val);
+  settings.timeFormat   = Number($('fmtToggle').querySelector('.toggle-btn.active').dataset.val);
+  settings.midnightMode = Number($('midnightToggle').querySelector('.toggle-btn.active').dataset.val);
+  localStorage.setItem('salahSettings', JSON.stringify(settings));
+  closeDrawer();
+  if (currentLat != null) loadPrayerTimes(currentLat, currentLon, currentCity);
 });
 
 // ── Init ──────────────────────────────────────────────────────

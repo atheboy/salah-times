@@ -4,24 +4,114 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Salah Times — Live Prayer App</title>
-  <meta name="description" content="Live, location-based Islamic prayer times with real-time countdown. Accurate Salah times for Fajr, Dhuhr, Asr, Maghrib, and Isha wherever you are." />
+  <meta name="description" content="Live, location-based Islamic prayer times with real-time countdown. Hanafi, Shafii, and multiple calculation methods." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="stars-bg" id="starsBg"></div>
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- Settings Drawer (right side) -->
+  <aside class="settings-drawer" id="settingsDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h3>&#9881; Settings</h3>
+      <button class="drawer-close" id="closeSettings" aria-label="Close settings">&#10005;</button>
+    </div>
+    <div class="drawer-body">
+
+      <div class="setting-group">
+        <label class="setting-label">Quick Preset</label>
+        <p class="setting-hint">Islamsk R&aring;d Norge (IRN) standard: Muslim World League + Angle-Based high-latitude rule + Hanafi Asr</p>
+        <button type="button" class="preset-btn" id="presetNorway">&#127475;&#127476; Use Norway (IRN) Defaults</button>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Calculation Method</label>
+        <p class="setting-hint">Affects Fajr &amp; Isha times</p>
+        <select class="setting-select" id="methodSelect"></select>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">High Latitude Adjustment</label>
+        <p class="setting-hint">For locations like Norway, where standard angle-based Fajr/Isha times break down near midsummer</p>
+        <select class="setting-select" id="latAdjSelect">
+          <option value="">Off (default)</option>
+          <option value="1">Middle of the Night</option>
+          <option value="2">One-Seventh of the Night</option>
+          <option value="3">Angle Based (recommended)</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Asr Calculation (Madhab)</label>
+        <p class="setting-hint">Hanafi uses a later Asr time</p>
+        <div class="toggle-group" id="schoolToggle">
+          <button class="toggle-btn active" data-val="0">Standard (Shafi&#699;i)</button>
+          <button class="toggle-btn" data-val="1">Hanafi</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Time Format</label>
+        <div class="toggle-group" id="fmtToggle">
+          <button class="toggle-btn active" data-val="12">12-hour</button>
+          <button class="toggle-btn" data-val="24">24-hour</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Midnight Mode</label>
+        <p class="setting-hint">Affects how midnight is calculated</p>
+        <div class="toggle-group" id="midnightToggle">
+          <button class="toggle-btn active" data-val="0">Standard</button>
+          <button class="toggle-btn" data-val="1">Jafari</button>
+        </div>
+      </div>
+
+      <button class="btn-apply" id="applySettingsBtn">Apply &amp; Refresh</button>
+    </div>
+  </aside>
+
+  <!-- Locations Panel (bottom sheet) -->
+  <aside class="locations-panel" id="locationsPanel" aria-hidden="true">
+    <div class="locations-handle"></div>
+    <div class="drawer-header">
+      <h3>&#128205; My Locations</h3>
+      <button class="drawer-close" id="closeLocations" aria-label="Close locations">&#10005;</button>
+    </div>
+    <div class="locations-list" id="locationsList"></div>
+    <div class="add-location-form">
+      <input type="text" id="addLocationInput" class="city-input" placeholder="Search a city to save..." />
+      <button class="btn-add-loc" id="addLocationBtn">Add</button>
+    </div>
+    <button class="btn-gps" id="useGpsBtn">&#128205; Use My Current GPS Location</button>
+  </aside>
+
+  <!-- Main App -->
   <div class="app-container">
+
+    <!-- Header -->
     <header class="app-header">
       <div class="header-brand">
         <span class="crescent-icon">&#9789;</span>
         <h1 class="brand-name">Salah<span class="brand-accent">Times</span></h1>
       </div>
-      <div class="header-date" id="headerDate"></div>
+      <div class="header-actions">
+        <div class="header-date" id="headerDate"></div>
+        <button class="icon-btn" id="locationsBtn" title="Locations">&#128205;</button>
+        <button class="icon-btn" id="settingsBtn" title="Settings">&#9881;</button>
+      </div>
     </header>
+
+    <!-- Location Screen -->
     <section class="location-screen" id="locationScreen">
       <div class="location-card">
         <div class="location-icon-wrap">
@@ -31,18 +121,19 @@
         <h2>Find Your Prayer Times</h2>
         <p>Allow location access to get accurate prayer times for your exact position.</p>
         <button class="btn-primary" id="enableLocationBtn">
-          <span class="btn-icon">&#127760;</span>
-          Enable Location
+          <span class="btn-icon">&#127760;</span> Enable Location
         </button>
         <div class="manual-location-toggle" id="manualToggle">
           <span>Or enter city manually</span>
         </div>
         <div class="manual-input-wrap" id="manualInputWrap" style="display:none;">
-          <input type="text" id="cityInput" placeholder="e.g. Cairo, Istanbul, London..." class="city-input" />
+          <input type="text" id="cityInput" placeholder="e.g. Cairo, Tehran, London..." class="city-input" />
           <button class="btn-secondary" id="searchCityBtn">Search</button>
         </div>
       </div>
     </section>
+
+    <!-- Loading Screen -->
     <section class="loading-screen" id="loadingScreen" style="display:none;">
       <div class="loading-content">
         <div class="loading-spinner">
@@ -52,6 +143,8 @@
         <p class="loading-text" id="loadingText">Detecting your location...</p>
       </div>
     </section>
+
+    <!-- Error Screen -->
     <section class="error-screen" id="errorScreen" style="display:none;">
       <div class="error-card">
         <div class="error-icon">&#9888;&#65039;</div>
@@ -60,23 +153,35 @@
         <button class="btn-primary" id="retryBtn">Try Again</button>
       </div>
     </section>
+
+    <!-- Prayer Screen -->
     <section class="prayer-screen" id="prayerScreen" style="display:none;">
+
       <div class="location-bar" id="locationBar">
         <span class="loc-icon">&#128205;</span>
         <span class="loc-text" id="locationText">Loading...</span>
-        <button class="loc-refresh" id="refreshBtn" title="Refresh location">&#8634;</button>
+        <button class="loc-save" id="saveLocBtn" title="Save this location">&#9734;</button>
+        <button class="loc-refresh" id="refreshBtn" title="Refresh">&#8634;</button>
       </div>
+
+      <!-- Method + Madhab badges -->
+      <div class="active-badges" id="activeBadges">
+        <span class="active-badge" id="methodBadge">—</span>
+        <span class="active-badge madhab-badge" id="madhabBadge">—</span>
+      </div>
+
       <div class="live-clock-section">
         <div class="live-clock" id="liveClock">--:--:--</div>
         <div class="hijri-date" id="hijriDate"></div>
       </div>
+
       <div class="next-prayer-hero" id="nextPrayerHero">
         <div class="next-label">Next Prayer</div>
         <div class="next-prayer-name" id="nextPrayerName">---</div>
         <div class="next-prayer-time-display" id="nextPrayerTimeDisplay">--:--</div>
         <div class="countdown-wrap">
           <div class="countdown-label">Time Remaining</div>
-          <div class="countdown-timer" id="countdownTimer">
+          <div class="countdown-timer">
             <div class="countdown-unit">
               <span class="count-num" id="countHr">00</span>
               <span class="count-lbl">hrs</span>
@@ -97,10 +202,15 @@
           <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
+
       <div class="prayers-grid" id="prayersGrid"></div>
-      <div class="method-badge" id="methodBadge"></div>
+
+      <!-- Sunrise, Sunset, Imsak, Midnight — reference times shown alongside the five daily prayers, matching what IRN's own bønnetid.no shows -->
+      <div class="extra-times-row" id="extraTimesRow"></div>
+
     </section>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
