@@ -447,6 +447,7 @@ function renderLocationsList() {
 function openLocations() {
   closeDrawer();
   closeQibla();
+  closeCalendar();
   renderLocationsList();
   $('locationsPanel').classList.add('open');
   $('locationsPanel').setAttribute('aria-hidden', 'false');
@@ -538,6 +539,7 @@ function wireToggleGroup(groupId) {
 function openDrawer() {
   closeQibla();
   closeLocations();
+  closeCalendar();
   $('settingsDrawer').classList.add('open');
   $('settingsDrawer').setAttribute('aria-hidden', 'false');
   $('drawerOverlay').classList.add('active');
@@ -630,6 +632,7 @@ async function enableLiveCompass() {
 function openQibla() {
   closeDrawer();
   closeLocations();
+  closeCalendar();
   updateQiblaPanel();
   $('qiblaPanel').classList.add('open');
   $('qiblaPanel').setAttribute('aria-hidden', 'false');
@@ -714,7 +717,7 @@ wireToggleGroup('midnightToggle');
 
 $('settingsBtn').addEventListener('click', openDrawer);
 $('closeSettings').addEventListener('click', closeDrawer);
-$('drawerOverlay').addEventListener('click', () => { closeDrawer(); closeQibla(); closeLocations(); });
+$('drawerOverlay').addEventListener('click', () => { closeDrawer(); closeQibla(); closeLocations(); closeCalendar(); });
 
 $('presetNorway').addEventListener('click', () => {
   $('methodSelect').value = '3';   // Muslim World League
@@ -732,6 +735,84 @@ $('applySettingsBtn').addEventListener('click', () => {
   localStorage.setItem('salahSettings', JSON.stringify(settings));
   closeDrawer();
   if (currentLat != null) loadPrayerTimes(currentLat, currentLon, currentCity);
+});
+
+// ── Monthly Calendar ────────────────────────────────────────────
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CAL_COLUMNS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+let calYear = null, calMonth = null; // calMonth is 1-indexed, matching Aladhan's API
+
+function stripTz(timeStr) {
+  return timeStr.split(' ')[0]; // "03:15 (CEST)" -> "03:15"
+}
+
+async function fetchCalendarMonth(year, month, lat, lon) {
+  const latAdjParam = settings.latitudeAdjustment !== '' ? `&latitudeAdjustmentMethod=${settings.latitudeAdjustment}` : '';
+  const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${lat}&longitude=${lon}` +
+    `&method=${settings.method}&school=${settings.school}&midnightMode=${settings.midnightMode}${latAdjParam}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('API error: ' + res.status);
+  const json = await res.json();
+  return json.data;
+}
+
+async function renderCalendarMonth() {
+  $('calMonthLabel').textContent = `${MONTH_NAMES[calMonth - 1]} ${calYear}`;
+  const body = $('calendarTableBody');
+  body.innerHTML = `<tr><td colspan="7" class="calendar-loading">Loading…</td></tr>`;
+
+  if (currentLat == null) {
+    body.innerHTML = `<tr><td colspan="7" class="calendar-error">Set a location first.</td></tr>`;
+    return;
+  }
+
+  try {
+    const days = await fetchCalendarMonth(calYear, calMonth, currentLat, currentLon);
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === calYear && (today.getMonth() + 1) === calMonth;
+
+    body.innerHTML = days.map(day => {
+      const isToday = isCurrentMonth && parseInt(day.date.gregorian.day, 10) === today.getDate();
+      const cells = CAL_COLUMNS.map(key => `<td>${fmt12(parseTime(stripTz(day.timings[key])))}</td>`).join('');
+      return `<tr class="${isToday ? 'cal-today' : ''}"><td>${day.date.gregorian.day} ${day.date.gregorian.weekday.en.slice(0, 3)}</td>${cells}</tr>`;
+    }).join('');
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="7" class="calendar-error">Could not load calendar. Check your connection.</td></tr>`;
+  }
+}
+
+function openCalendar() {
+  closeDrawer();
+  closeQibla();
+  closeLocations();
+  if (calYear == null) {
+    const today = new Date();
+    calYear = today.getFullYear();
+    calMonth = today.getMonth() + 1;
+  }
+  renderCalendarMonth();
+  $('calendarPanel').classList.add('open');
+  $('calendarPanel').setAttribute('aria-hidden', 'false');
+  $('drawerOverlay').classList.add('active');
+}
+
+function closeCalendar() {
+  $('calendarPanel').classList.remove('open');
+  $('calendarPanel').setAttribute('aria-hidden', 'true');
+  $('drawerOverlay').classList.remove('active');
+}
+
+$('calendarBtn').addEventListener('click', openCalendar);
+$('closeCalendar').addEventListener('click', closeCalendar);
+$('calPrevMonth').addEventListener('click', () => {
+  calMonth--;
+  if (calMonth < 1) { calMonth = 12; calYear--; }
+  renderCalendarMonth();
+});
+$('calNextMonth').addEventListener('click', () => {
+  calMonth++;
+  if (calMonth > 12) { calMonth = 1; calYear++; }
+  renderCalendarMonth();
 });
 
 // ── Init ──────────────────────────────────────────────────────

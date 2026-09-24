@@ -127,6 +127,36 @@
     </div>
   </aside>
 
+  <!-- Calendar Panel (bottom sheet) -->
+  <aside class="locations-panel calendar-panel" id="calendarPanel" aria-hidden="true">
+    <div class="locations-handle"></div>
+    <div class="drawer-header">
+      <h3>&#128197; Monthly Times</h3>
+      <button class="drawer-close" id="closeCalendar" aria-label="Close calendar">&#10005;</button>
+    </div>
+    <div class="calendar-nav">
+      <button class="cal-nav-btn" id="calPrevMonth" aria-label="Previous month">&#8249;</button>
+      <div class="calendar-month-label" id="calMonthLabel">&nbsp;</div>
+      <button class="cal-nav-btn" id="calNextMonth" aria-label="Next month">&#8250;</button>
+    </div>
+    <div class="calendar-table-wrap">
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Fajr</th>
+            <th>Sunrise</th>
+            <th>Dhuhr</th>
+            <th>Asr</th>
+            <th>Maghrib</th>
+            <th>Isha</th>
+          </tr>
+        </thead>
+        <tbody id="calendarTableBody"></tbody>
+      </table>
+    </div>
+  </aside>
+
   <!-- Main App -->
   <div class="app-container">
 
@@ -138,6 +168,7 @@
       </div>
       <div class="header-actions">
         <div class="header-date" id="headerDate"></div>
+        <button class="icon-btn" id="calendarBtn" title="Monthly calendar">&#128197;</button>
         <button class="icon-btn" id="qiblaBtn" title="Qibla direction">&#129517;</button>
         <button class="icon-btn" id="locationsBtn" title="Locations">&#128205;</button>
         <button class="icon-btn" id="settingsBtn" title="Settings">&#9881;</button>

@@ -348,6 +348,46 @@ body {
 .qibla-distance { font-size: 0.85rem; color: var(--teal); font-weight: 600; margin-bottom: 18px; }
 .qibla-note { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-top: 16px; }
 
+/* ── Monthly Calendar ── */
+.calendar-panel { max-height: 85vh; }
+.calendar-nav {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  padding: 4px 20px 14px;
+}
+.cal-nav-btn {
+  background: rgba(201,168,76,0.1);
+  border: 1px solid var(--glass-border);
+  color: var(--gold);
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-nav-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); }
+.calendar-month-label { font-weight: 700; color: var(--white); min-width: 160px; text-align: center; }
+.calendar-table-wrap { padding: 0 20px 8px; overflow-x: auto; }
+.calendar-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; white-space: nowrap; }
+.calendar-table th {
+  text-align: center; color: var(--gold);
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 8px 10px; border-bottom: 1px solid var(--glass-border);
+  position: sticky; top: 0; background: var(--drawer-bg);
+}
+.calendar-table td {
+  text-align: center; color: var(--white);
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-variant-numeric: tabular-nums;
+}
+.calendar-table td:first-child, .calendar-table th:first-child { text-align: left; color: var(--text-muted); }
+.calendar-table tr.cal-today td { background: rgba(201,168,76,0.1); }
+.calendar-table tr.cal-today td:first-child { color: var(--gold); font-weight: 700; }
+.calendar-loading, .calendar-error {
+  text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 0.85rem;
+}
+
 /* ── App Container ── */
 .app-container {
   position: relative; z-index: 10;
