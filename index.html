@@ -51,6 +51,12 @@
       </div>
 
       <div class="setting-group">
+        <label class="setting-label">Notifications</label>
+        <p class="setting-hint">Get notified the moment each prayer time begins, while this tab is open</p>
+        <button type="button" class="preset-btn" id="notifToggleBtn">&#128276; Enable Prayer Notifications</button>
+      </div>
+
+      <div class="setting-group">
         <label class="setting-label">Asr Calculation (Madhab)</label>
         <p class="setting-hint">Hanafi uses a later Asr time</p>
         <div class="toggle-group" id="schoolToggle">
@@ -95,6 +101,27 @@
     <button class="btn-gps" id="useGpsBtn">&#128205; Use My Current GPS Location</button>
   </aside>
 
+  <!-- Qibla Panel (right side) -->
+  <aside class="settings-drawer qibla-panel" id="qiblaPanel" aria-hidden="true">
+    <div class="drawer-header">
+      <h3>&#129517; Qibla Direction</h3>
+      <button class="drawer-close" id="closeQibla" aria-label="Close Qibla">&#10005;</button>
+    </div>
+    <div class="drawer-body qibla-body">
+      <div class="qibla-compass-wrap">
+        <div class="qibla-compass">
+          <span class="qibla-compass-n">N</span>
+          <div class="qibla-needle" id="qiblaNeedle">&#128331;</div>
+        </div>
+      </div>
+      <div class="qibla-bearing" id="qiblaBearing">&mdash;&deg;</div>
+      <div class="qibla-hint" id="qiblaHint">from North</div>
+      <div class="qibla-distance" id="qiblaDistance"></div>
+      <button type="button" class="preset-btn" id="enableCompassBtn" style="display:none;">Enable Live Compass</button>
+      <p class="qibla-note">The &#128331; points toward the Kaaba in Mecca. Enable the live compass on a phone to align it with the direction you're facing &mdash; works best outdoors, away from metal objects.</p>
+    </div>
+  </aside>
+
   <!-- Main App -->
   <div class="app-container">
 
@@ -106,6 +133,7 @@
       </div>
       <div class="header-actions">
         <div class="header-date" id="headerDate"></div>
+        <button class="icon-btn" id="qiblaBtn" title="Qibla direction">&#129517;</button>
         <button class="icon-btn" id="locationsBtn" title="Locations">&#128205;</button>
         <button class="icon-btn" id="settingsBtn" title="Settings">&#9881;</button>
       </div>

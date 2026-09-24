@@ -292,6 +292,33 @@ body {
 }
 .btn-gps:hover { background: rgba(26,170,180,0.2); }
 
+/* ── Qibla Compass ── */
+.qibla-body { display: flex; flex-direction: column; align-items: center; padding: 24px; text-align: center; }
+.qibla-compass-wrap { margin-bottom: 20px; }
+.qibla-compass {
+  position: relative;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, rgba(201,168,76,0.08), rgba(10,22,40,0.9));
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 0 40px rgba(201,168,76,0.08), inset 0 0 30px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.qibla-compass-n {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  color: var(--gold); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;
+}
+.qibla-needle {
+  font-size: 2.6rem;
+  transform-origin: center 60%;
+  transition: transform 0.25s ease-out;
+  filter: drop-shadow(0 0 10px rgba(201,168,76,0.5));
+}
+.qibla-bearing { font-size: 2.2rem; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
+.qibla-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; margin-bottom: 12px; }
+.qibla-distance { font-size: 0.85rem; color: var(--teal); font-weight: 600; margin-bottom: 18px; }
+.qibla-note { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-top: 16px; }
+
 /* ── App Container ── */
 .app-container {
   position: relative; z-index: 10;

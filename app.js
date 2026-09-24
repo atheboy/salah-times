@@ -45,7 +45,7 @@ let currentCity    = '';
 let clockInterval  = null;
 let prevHr  = -1, prevMin = -1, prevSec = -1;
 
-let settings = { method: 2, school: 0, timeFormat: 12, midnightMode: 0, latitudeAdjustment: '' };
+let settings = { method: 2, school: 0, timeFormat: 12, midnightMode: 0, latitudeAdjustment: '', notifications: false };
 try {
   const saved = JSON.parse(localStorage.getItem('salahSettings'));
   if (saved) settings = { ...settings, ...saved };
@@ -261,7 +261,9 @@ function tick(timings) {
 
   // Countdown
   const next = getNextPrayer(timings);
-  const diff = Math.max(0, next.time - now);
+  const rawDiff = next.time - now;
+  checkPrayerNotification(next, rawDiff, timings);
+  const diff = Math.max(0, rawDiff);
   const totalSec = Math.floor(diff / 1000);
   const hrs  = Math.floor(totalSec / 3600);
   const mins = Math.floor((totalSec % 3600) / 60);
@@ -408,6 +410,7 @@ function wireToggleGroup(groupId) {
 }
 
 function openDrawer() {
+  closeQibla();
   $('settingsDrawer').classList.add('open');
   $('settingsDrawer').setAttribute('aria-hidden', 'false');
   $('drawerOverlay').classList.add('active');
@@ -418,6 +421,159 @@ function closeDrawer() {
   $('settingsDrawer').setAttribute('aria-hidden', 'true');
   $('drawerOverlay').classList.remove('active');
 }
+
+// ── Qibla Direction ─────────────────────────────────────────────
+const KAABA_LAT = 21.4225, KAABA_LON = 39.8262;
+let qiblaBearing = null;   // degrees from true North to Mecca, for the current location
+let deviceHeading = null;  // live compass heading from the device, if granted
+
+function toRad(deg) { return deg * Math.PI / 180; }
+function toDeg(rad) { return rad * 180 / Math.PI; }
+
+function computeQiblaBearing(lat, lon) {
+  const φ1 = toRad(lat), φ2 = toRad(KAABA_LAT);
+  const Δλ = toRad(KAABA_LON - lon);
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function computeDistanceToMeccaKm(lat, lon) {
+  const R = 6371;
+  const φ1 = toRad(lat), φ2 = toRad(KAABA_LAT);
+  const Δφ = toRad(KAABA_LAT - lat), Δλ = toRad(KAABA_LON - lon);
+  const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function renderQiblaNeedle() {
+  if (qiblaBearing == null) return;
+  const rotation = deviceHeading != null ? (qiblaBearing - deviceHeading + 360) % 360 : qiblaBearing;
+  $('qiblaNeedle').style.transform = `rotate(${rotation}deg)`;
+  $('qiblaHint').textContent = deviceHeading != null
+    ? 'Point the top of your phone this way'
+    : 'from North — enable live compass to point it for you';
+}
+
+function updateQiblaPanel() {
+  if (currentLat == null) {
+    $('qiblaBearing').textContent = '—°';
+    $('qiblaDistance').textContent = 'Set a location first';
+    return;
+  }
+  qiblaBearing = computeQiblaBearing(currentLat, currentLon);
+  const distKm = computeDistanceToMeccaKm(currentLat, currentLon);
+  $('qiblaBearing').textContent = Math.round(qiblaBearing) + '°';
+  $('qiblaDistance').textContent = Math.round(distKm).toLocaleString() + ' km to Mecca';
+
+  const needsPermission = typeof DeviceOrientationEvent !== 'undefined'
+    && typeof DeviceOrientationEvent.requestPermission === 'function'
+    && deviceHeading == null;
+  $('enableCompassBtn').style.display = needsPermission ? '' : 'none';
+
+  renderQiblaNeedle();
+}
+
+function handleDeviceOrientation(e) {
+  let heading = null;
+  if (typeof e.webkitCompassHeading === 'number') {
+    heading = e.webkitCompassHeading; // iOS Safari: already a compass heading (0 = North)
+  } else if (e.alpha != null) {
+    heading = (360 - e.alpha) % 360; // Android: alpha increases counter-clockwise from North
+  }
+  if (heading != null) {
+    deviceHeading = heading;
+    renderQiblaNeedle();
+  }
+}
+
+async function enableLiveCompass() {
+  if (typeof DeviceOrientationEvent === 'undefined') return;
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      if (perm !== 'granted') return;
+    } catch { return; }
+  }
+  const eventName = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
+  window.addEventListener(eventName, handleDeviceOrientation, true);
+  $('enableCompassBtn').style.display = 'none';
+}
+
+function openQibla() {
+  closeDrawer();
+  updateQiblaPanel();
+  $('qiblaPanel').classList.add('open');
+  $('qiblaPanel').setAttribute('aria-hidden', 'false');
+  $('drawerOverlay').classList.add('active');
+}
+
+function closeQibla() {
+  $('qiblaPanel').classList.remove('open');
+  $('qiblaPanel').setAttribute('aria-hidden', 'true');
+  $('drawerOverlay').classList.remove('active');
+}
+
+$('qiblaBtn').addEventListener('click', openQibla);
+$('closeQibla').addEventListener('click', closeQibla);
+$('enableCompassBtn').addEventListener('click', enableLiveCompass);
+
+// ── Prayer Notifications ──────────────────────────────────────
+// Fires while this tab stays open — not a background/service-worker push,
+// just a same-tab Notification the moment a prayer's start time is reached.
+let lastNotifiedPrayerKey = null;
+
+function updateNotifToggleLabel() {
+  const btn = $('notifToggleBtn');
+  if (!btn) return;
+  if (typeof Notification === 'undefined') {
+    btn.textContent = 'Notifications not supported in this browser';
+    btn.disabled = true;
+  } else if (settings.notifications && Notification.permission === 'granted') {
+    btn.textContent = '🔕 Disable Prayer Notifications';
+  } else {
+    btn.textContent = '🔔 Enable Prayer Notifications';
+  }
+}
+
+async function toggleNotifications() {
+  if (typeof Notification === 'undefined') return;
+
+  if (settings.notifications && Notification.permission === 'granted') {
+    settings.notifications = false;
+    localStorage.setItem('salahSettings', JSON.stringify(settings));
+    updateNotifToggleLabel();
+    return;
+  }
+
+  if (Notification.permission === 'granted') {
+    settings.notifications = true;
+  } else if (Notification.permission !== 'denied') {
+    const perm = await Notification.requestPermission();
+    settings.notifications = perm === 'granted';
+  }
+  localStorage.setItem('salahSettings', JSON.stringify(settings));
+  updateNotifToggleLabel();
+}
+
+function checkPrayerNotification(next, diffMs, timings) {
+  if (!settings.notifications || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  if (diffMs > 1000) return; // only right at (or just past) the moment it begins
+
+  const dateKey = next.time.toISOString().slice(0, 10) + '-' + next.key;
+  if (lastNotifiedPrayerKey === dateKey) return;
+  lastNotifiedPrayerKey = dateKey;
+
+  try {
+    new Notification(`${next.key} — it's time`, {
+      body: `${next.key} begins now at ${fmt12(next.time)} in ${currentCity || 'your location'}.`,
+      tag: dateKey,
+    });
+  } catch { /* some browsers restrict Notification() outside a user gesture in edge cases */ }
+}
+
+$('notifToggleBtn').addEventListener('click', toggleNotifications);
+updateNotifToggleLabel();
 
 populateMethodSelect();
 $('latAdjSelect').value = settings.latitudeAdjustment;
@@ -430,7 +586,7 @@ wireToggleGroup('midnightToggle');
 
 $('settingsBtn').addEventListener('click', openDrawer);
 $('closeSettings').addEventListener('click', closeDrawer);
-$('drawerOverlay').addEventListener('click', closeDrawer);
+$('drawerOverlay').addEventListener('click', () => { closeDrawer(); closeQibla(); });
 
 $('presetNorway').addEventListener('click', () => {
   $('methodSelect').value = '3';   // Muslim World League
