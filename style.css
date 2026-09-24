@@ -308,11 +308,40 @@ body {
   position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
   color: var(--gold); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;
 }
+.qibla-center-dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 8px; height: 8px; margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(201,168,76,0.7);
+  z-index: 2;
+}
 .qibla-needle {
-  font-size: 2.6rem;
-  transform-origin: center 60%;
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 3px; height: 86px;
+  margin: -86px 0 0 -1.5px;
+  transform-origin: 50% 100%;
   transition: transform 0.25s ease-out;
-  filter: drop-shadow(0 0 10px rgba(201,168,76,0.5));
+}
+.qibla-arrow-shaft {
+  width: 100%; height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(to top, rgba(201,168,76,0.1), var(--gold));
+}
+.qibla-arrow-head {
+  position: absolute; top: -15px; left: 50%;
+  width: 0; height: 0; margin-left: -9px;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 16px solid var(--gold);
+  filter: drop-shadow(0 2px 6px rgba(201,168,76,0.6));
+}
+.qibla-kaaba {
+  position: absolute; top: -46px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0 8px rgba(201,168,76,0.5));
 }
 .qibla-bearing { font-size: 2.2rem; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
 .qibla-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; margin-bottom: 12px; }
