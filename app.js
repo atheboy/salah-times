@@ -323,6 +323,7 @@ async function loadPrayerTimes(lat, lon, cityLabel) {
     // Initial render
     renderPrayersGrid(prayerTimings);
     renderExtraTimes(prayerTimings);
+    updateSaveButtonState();
 
     // Start live ticker
     if (clockInterval) clearInterval(clockInterval);
@@ -378,6 +379,131 @@ async function doManualSearch() {
 $('searchCityBtn').addEventListener('click', doManualSearch);
 $('cityInput').addEventListener('keydown', e => { if (e.key === 'Enter') doManualSearch(); });
 
+// ── Saved Locations ────────────────────────────────────────────
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function loadSavedLocations() {
+  try { return JSON.parse(localStorage.getItem('salahSavedLocations')) || []; }
+  catch { return []; }
+}
+function persistSavedLocations() {
+  localStorage.setItem('salahSavedLocations', JSON.stringify(savedLocations));
+}
+let savedLocations = loadSavedLocations();
+
+function isSameLocation(loc, lat, lon) {
+  return Math.abs(loc.lat - lat) < 0.01 && Math.abs(loc.lon - lon) < 0.01;
+}
+function findSavedIndex(lat, lon) {
+  return savedLocations.findIndex(l => isSameLocation(l, lat, lon));
+}
+
+function updateSaveButtonState() {
+  const btn = $('saveLocBtn');
+  if (!btn || currentLat == null) return;
+  const isSaved = findSavedIndex(currentLat, currentLon) !== -1;
+  btn.classList.toggle('saved', isSaved);
+  btn.innerHTML = isSaved ? '&#9733;' : '&#9734;';
+  btn.title = isSaved ? 'Remove from saved locations' : 'Save this location';
+}
+
+function toggleSaveCurrentLocation() {
+  if (currentLat == null) return;
+  const idx = findSavedIndex(currentLat, currentLon);
+  if (idx !== -1) savedLocations.splice(idx, 1);
+  else savedLocations.push({ city: currentCity, lat: currentLat, lon: currentLon });
+  persistSavedLocations();
+  updateSaveButtonState();
+  renderLocationsList();
+}
+
+function renderLocationsList() {
+  const list = $('locationsList');
+  if (!list) return;
+  if (savedLocations.length === 0) {
+    list.innerHTML = '<div class="no-locations">No saved locations yet — search a city below, or tap the ☆ on your current location.</div>';
+    return;
+  }
+  list.innerHTML = savedLocations.map((loc, i) => {
+    const isActive = currentLat != null && isSameLocation(loc, currentLat, currentLon);
+    return `
+      <div class="location-item${isActive ? ' active-loc' : ''}" data-index="${i}">
+        <span class="loc-item-icon">📍</span>
+        <div style="flex:1">
+          <div class="loc-item-name">${escapeHtml(loc.city)}</div>
+          <div class="loc-item-coords">${loc.lat.toFixed(2)}, ${loc.lon.toFixed(2)}</div>
+        </div>
+        ${isActive ? '<span class="active-dot"></span>' : ''}
+        <button class="loc-delete-btn" data-delete-index="${i}" title="Remove">&#10005;</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function openLocations() {
+  closeDrawer();
+  closeQibla();
+  renderLocationsList();
+  $('locationsPanel').classList.add('open');
+  $('locationsPanel').setAttribute('aria-hidden', 'false');
+  $('drawerOverlay').classList.add('active');
+}
+
+function closeLocations() {
+  $('locationsPanel').classList.remove('open');
+  $('locationsPanel').setAttribute('aria-hidden', 'true');
+  $('drawerOverlay').classList.remove('active');
+}
+
+async function addLocationFromInput() {
+  const val = $('addLocationInput').value.trim();
+  if (!val) return;
+  const originalPlaceholder = $('addLocationInput').placeholder;
+  try {
+    const { lat, lon, city } = await geocodeCity(val);
+    if (findSavedIndex(lat, lon) === -1) {
+      savedLocations.push({ city, lat, lon });
+      persistSavedLocations();
+    }
+    $('addLocationInput').value = '';
+    renderLocationsList();
+  } catch {
+    $('addLocationInput').placeholder = 'City not found — try again';
+    setTimeout(() => { $('addLocationInput').placeholder = originalPlaceholder; }, 2500);
+  }
+}
+
+$('saveLocBtn').addEventListener('click', toggleSaveCurrentLocation);
+$('locationsBtn').addEventListener('click', openLocations);
+$('closeLocations').addEventListener('click', closeLocations);
+$('addLocationBtn').addEventListener('click', addLocationFromInput);
+$('addLocationInput').addEventListener('keydown', e => { if (e.key === 'Enter') addLocationFromInput(); });
+$('useGpsBtn').addEventListener('click', () => { closeLocations(); startWithGeolocation(); });
+
+$('locationsList').addEventListener('click', (e) => {
+  const delBtn = e.target.closest('.loc-delete-btn');
+  if (delBtn) {
+    const idx = parseInt(delBtn.dataset.deleteIndex, 10);
+    savedLocations.splice(idx, 1);
+    persistSavedLocations();
+    renderLocationsList();
+    updateSaveButtonState();
+    return;
+  }
+  const item = e.target.closest('.location-item');
+  if (item) {
+    const loc = savedLocations[parseInt(item.dataset.index, 10)];
+    if (loc) {
+      closeLocations();
+      loadPrayerTimes(loc.lat, loc.lon, loc.city);
+    }
+  }
+});
+
 $('retryBtn').addEventListener('click', () => showScreen('location'));
 
 $('refreshBtn').addEventListener('click', () => {
@@ -411,6 +537,7 @@ function wireToggleGroup(groupId) {
 
 function openDrawer() {
   closeQibla();
+  closeLocations();
   $('settingsDrawer').classList.add('open');
   $('settingsDrawer').setAttribute('aria-hidden', 'false');
   $('drawerOverlay').classList.add('active');
@@ -502,6 +629,7 @@ async function enableLiveCompass() {
 
 function openQibla() {
   closeDrawer();
+  closeLocations();
   updateQiblaPanel();
   $('qiblaPanel').classList.add('open');
   $('qiblaPanel').setAttribute('aria-hidden', 'false');
@@ -586,7 +714,7 @@ wireToggleGroup('midnightToggle');
 
 $('settingsBtn').addEventListener('click', openDrawer);
 $('closeSettings').addEventListener('click', closeDrawer);
-$('drawerOverlay').addEventListener('click', () => { closeDrawer(); closeQibla(); });
+$('drawerOverlay').addEventListener('click', () => { closeDrawer(); closeQibla(); closeLocations(); });
 
 $('presetNorway').addEventListener('click', () => {
   $('methodSelect').value = '3';   // Muslim World League
